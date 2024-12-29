@@ -1,60 +1,72 @@
-"use client";
+import Link from "next/link";
 
-import { useState } from "react";
-
-export default function AiToolPage() {
-  const [streamedResponse, setStreamedResponse] = useState<string>(""); // To store the streamed text
-  const [loading, setLoading] = useState<boolean>(false); // To manage the loading state
-
-  const handleSubmit = () => {
-    setLoading(true);
-    setStreamedResponse("");
-
-    const eventSource = new EventSource("/api/ai-tool");
-
-    eventSource.onmessage = (event) => {
-      const parsedData = event.data;
-
-      // Handle errors within the streamed data
-      if (parsedData.startsWith("{") && parsedData.includes("error")) {
-        const error = JSON.parse(parsedData).error;
-        console.error("Streaming Error:", error);
-        eventSource.close();
-        setLoading(false);
-        return;
-      }
-
-      setStreamedResponse((prev) => prev + parsedData);
-    };
-
-    eventSource.onerror = () => {
-      console.error("Error in streaming response. Closing connection.");
-      eventSource.close();
-      setLoading(false);
-    };
-
-    eventSource.addEventListener("open", () => {
-      console.log("Connection opened for streaming...");
-    });
-  };
-
+export default function Dashboard() {
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg shadow-lg">
-      <h1 className="text-4xl font-extrabold text-white text-center">AI Tool with Streaming</h1>
-      <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-700">Ask the AI</h2>
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-indigo-600 text-white py-3 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed"
-          disabled={loading}
-        >
-          {loading ? "Generating Response..." : "Generate Response"}
-        </button>
-      </div>
+    <div className="container mx-auto p-8">
+      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-10">
+        Cloudflare AI Tools
+      </h1>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-800">AI Response:</h3>
-        <pre className="whitespace-pre-wrap text-gray-600 mt-2">{streamedResponse}</pre>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* AI Image Generator */}
+        <Link href="/tools/ai-image-generator">
+          <a className="flex flex-col items-center bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105 hover:shadow-xl">
+            <img
+              src="/images/ai-image-icon.svg"
+              alt="AI Image Generator"
+              className="w-16 h-16 mb-4"
+            />
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              AI Image Generator
+            </h2>
+            <p className="text-gray-600 text-center mb-4">
+              Generate stunning AI images based on your prompt.
+            </p>
+            <button className="w-full py-3 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 focus:outline-none">
+              Start Generating
+            </button>
+          </a>
+        </Link>
+
+        {/* Text Generator */}
+        <Link href="/tools/text-generator">
+          <a className="flex flex-col items-center bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105 hover:shadow-xl">
+            <img
+              src="/images/text-generator-icon.svg"
+              alt="Text Generator"
+              className="w-16 h-16 mb-4"
+            />
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Text Generator
+            </h2>
+            <p className="text-gray-600 text-center mb-4">
+              Generate creative content, stories, and more with AI.
+            </p>
+            <button className="w-full py-3 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 focus:outline-none">
+              Start Generating
+            </button>
+          </a>
+        </Link>
+
+        {/* Sentiment Analyzer */}
+        <Link href="/tools/sentiment-analyzer">
+          <a className="flex flex-col items-center bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105 hover:shadow-xl">
+            <img
+              src="/images/sentiment-analyzer-icon.svg"
+              alt="Sentiment Analyzer"
+              className="w-16 h-16 mb-4"
+            />
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Sentiment Analyzer
+            </h2>
+            <p className="text-gray-600 text-center mb-4">
+              Analyze the sentiment of your text inputs.
+            </p>
+            <button className="w-full py-3 bg-blue-600 text-white font-semibold rounded-md transition-colors hover:bg-blue-700 focus:outline-none">
+              Start Analyzing
+            </button>
+          </a>
+        </Link>
       </div>
     </div>
   );
