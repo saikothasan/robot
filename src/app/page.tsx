@@ -1,24 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
+
+interface ApiResponse {
+  aiAnswer: string | null;
+  storedAnswer: string | null;
+}
 
 export default function AiToolPage() {
-  const [input, setInput] = useState("");
-  const [aiAnswer, setAiAnswer] = useState<string | null>(null);
-  const [storedAnswer, setStoredAnswer] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState<string>(""); // Type for input as string
+  const [aiAnswer, setAiAnswer] = useState<string | null>(null); // Type as string or null
+  const [storedAnswer, setStoredAnswer] = useState<string | null>(null); // Type as string or null
+  const [loading, setLoading] = useState<boolean>(false); // Type as boolean
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     setLoading(true);
 
-    const response = await fetch("/api/ai-tool", {
-      method: "GET",
-    });
+    try {
+      const response = await fetch("/api/ai-tool", {
+        method: "GET",
+      });
 
-    const data = await response.json();
-    setAiAnswer(data.aiAnswer);
-    setStoredAnswer(data.storedAnswer);
-    setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch AI response.");
+      }
+
+      // Explicitly type the response
+      const data: ApiResponse = await response.json();
+      setAiAnswer(data.aiAnswer);
+      setStoredAnswer(data.storedAnswer);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>): void => {
+    setInput(e.target.value);
   };
 
   return (
@@ -30,7 +49,7 @@ export default function AiToolPage() {
           className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           rows={4}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Ask something like 'What is the origin of the phrase Hello, World?'"
         />
         <button
