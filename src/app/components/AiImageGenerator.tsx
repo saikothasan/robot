@@ -1,6 +1,12 @@
 "use client";
 import { useState, ChangeEvent } from "react";
 
+// Define the expected structure of the response data
+interface GenerateImageResponse {
+  imageUrl?: string;
+  error?: string;
+}
+
 // Define types for the component's state
 interface AiImageGeneratorState {
   prompt: string;
@@ -31,7 +37,8 @@ export default function AiImageGenerator() {
         body: JSON.stringify({ prompt }),
       });
 
-      const data = await res.json();
+      // Explicitly type the response data
+      const data: GenerateImageResponse = await res.json();
 
       if (res.ok && data.imageUrl) {
         setState({ ...state, imageUrl: data.imageUrl });
