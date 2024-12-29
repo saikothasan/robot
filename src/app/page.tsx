@@ -6,17 +6,19 @@ export default function AiToolPage() {
   const [streamedResponse, setStreamedResponse] = useState<string>(""); // To store the streamed text
   const [loading, setLoading] = useState<boolean>(false); // To manage the loading state
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setLoading(true);
     setStreamedResponse("");
 
     const eventSource = new EventSource("/api/ai-tool");
 
     eventSource.onmessage = (event) => {
-      const parsedData = JSON.parse(event.data);
+      const parsedData = event.data;
 
-      if (parsedData.error) {
-        console.error(parsedData.error);
+      // Handle errors within the streamed data
+      if (parsedData.startsWith("{") && parsedData.includes("error")) {
+        const error = JSON.parse(parsedData).error;
+        console.error("Streaming Error:", error);
         eventSource.close();
         setLoading(false);
         return;
@@ -26,19 +28,14 @@ export default function AiToolPage() {
     };
 
     eventSource.onerror = () => {
-      console.error("Error in streaming response.");
+      console.error("Error in streaming response. Closing connection.");
       eventSource.close();
       setLoading(false);
     };
 
-    eventSource.onopen = () => {
+    eventSource.addEventListener("open", () => {
       console.log("Connection opened for streaming...");
-    };
-
-    eventSource.onclose = () => {
-      console.log("Connection closed.");
-      setLoading(false);
-    };
+    });
   };
 
   return (
