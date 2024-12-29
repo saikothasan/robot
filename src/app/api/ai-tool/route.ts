@@ -1,27 +1,28 @@
-import { getRequestContext } from "@cloudflare/next-on-pages";
+import { IncomingRequestCf } from '@cloudflare/workers-types';
 
-export const runtime = "edge"; // Ensure this runs at the edge
+export const runtime = "edge"; // Make sure the function runs at the edge
 
-export async function GET(request: Request) {
-  const context = getRequestContext();
+export async function GET(request: IncomingRequestCf) {
+  const context = request.cf;
+
   const input = { prompt: "What is the origin of the phrase Hello, World?" };
 
-  // Call the AI model
-  const answer = await context.env.AI.run(
-    "@cf/meta/llama-3.1-8b-instruct", // Adjust with the model you have access to
+  // Assuming you have access to the Cloudflare AI API in your environment.
+  const aiResponse = await context.env.AI.run(
+    "@cf/meta/llama-3.1-8b-instruct", // Replace with your actual AI model
     input
   );
 
-  // Interact with KV store
-  const myKv = context.env.MY_KV_2; // Access KV Namespace MY_KV_2
-  await myKv.put("ai_answer", JSON.stringify(answer)); // Store AI response in KV
+  // Access Cloudflare KV Namespace
+  const myKv = context.env.MY_KV_2; // Your KV namespace
+  await myKv.put("ai_answer", JSON.stringify(aiResponse)); // Store AI response
 
-  // Retrieve and return stored AI response
+  // Retrieve stored value from KV
   const storedAnswer = await myKv.get("ai_answer");
 
   return new Response(
     JSON.stringify({
-      aiAnswer: answer,
+      aiAnswer: aiResponse,
       storedAnswer: storedAnswer,
     }),
     { headers: { "Content-Type": "application/json" } }
