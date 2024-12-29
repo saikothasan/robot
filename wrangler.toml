@@ -10,3 +10,17 @@ minify = true
 
 # Use the new Workers + Assets to host the static frontend files
 assets = { directory = ".worker-next/assets", binding = "ASSETS" }
+
+[ai]
+binding = "AI"
+
+[[r2_buckets]]
+binding = 'MY_R2' # <~ valid JavaScript variable name
+bucket_name = 'codegen'
+
+[[kv_namespaces]]
+binding = "MY_KV_1"
+id = "0e4ed3d2aea64f5d8badda1e6b9172ca"
+
+[vars]
+API_KEY = "1234567asdf"
