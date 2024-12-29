@@ -1,15 +1,29 @@
 "use client";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
+
+// Define types for the component's state
+interface AiImageGeneratorState {
+  prompt: string;
+  imageUrl: string;
+  loading: boolean;
+  error: string;
+}
 
 export default function AiImageGenerator() {
-  const [prompt, setPrompt] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // Set the initial state with appropriate types
+  const [state, setState] = useState<AiImageGeneratorState>({
+    prompt: "",
+    imageUrl: "",
+    loading: false,
+    error: "",
+  });
 
+  // Destructure state for easy access
+  const { prompt, imageUrl, loading, error } = state;
+
+  // Function to handle image generation
   const generateImage = async () => {
-    setLoading(true);
-    setError("");
+    setState({ ...state, loading: true, error: "" });
     try {
       const res = await fetch("/api/generate-image", {
         method: "POST",
@@ -20,15 +34,20 @@ export default function AiImageGenerator() {
       const data = await res.json();
 
       if (res.ok && data.imageUrl) {
-        setImageUrl(data.imageUrl);  // Use the image URL from the API response
+        setState({ ...state, imageUrl: data.imageUrl });
       } else {
         throw new Error(data.error || "Failed to generate image.");
       }
     } catch (err: any) {
-      setError(err.message || "An error occurred.");
+      setState({ ...state, error: err.message || "An error occurred." });
     } finally {
-      setLoading(false);
+      setState({ ...state, loading: false });
     }
+  };
+
+  // Handle input change for prompt
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, prompt: e.target.value });
   };
 
   return (
@@ -38,7 +57,7 @@ export default function AiImageGenerator() {
         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         placeholder="Enter your prompt"
         value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
+        onChange={handleInputChange}
       />
       <button
         onClick={generateImage}
