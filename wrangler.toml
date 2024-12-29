@@ -15,8 +15,12 @@ assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 binding = "AI"
 
 [[r2_buckets]]
-binding = 'MY_R2' # <~ valid JavaScript variable name
-bucket_name = 'codegen'
+binding = "MY_R2"
+bucket_name = "codegen"
+
+[[kv_namespaces]]
+binding = "MY_KV_2"
+id = "1e24d482ecee411d98c749f2c35b15ec"
 
 [[kv_namespaces]]
 binding = "MY_KV_1"
